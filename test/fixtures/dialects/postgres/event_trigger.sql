@@ -1,0 +1,31 @@
+CREATE EVENT TRIGGER abort_ddl ON ddl_command_start
+EXECUTE FUNCTION abort_any_command();
+
+CREATE EVENT TRIGGER log_drops ON sql_drop
+EXECUTE PROCEDURE log_dropped_objects();
+
+CREATE EVENT TRIGGER no_rewrite_allowed ON table_rewrite
+WHEN TAG IN ('ALTER TABLE', 'ALTER TYPE')
+EXECUTE FUNCTION no_rewrite();
+
+CREATE EVENT TRIGGER audit_ddl ON ddl_command_end
+WHEN tag IN ('CREATE TABLE') AND tag IN ('CREATE TABLE', 'DROP TABLE')
+EXECUTE FUNCTION audit.log_ddl();
+
+ALTER EVENT TRIGGER abort_ddl DISABLE;
+
+ALTER EVENT TRIGGER abort_ddl ENABLE;
+
+ALTER EVENT TRIGGER abort_ddl ENABLE REPLICA;
+
+ALTER EVENT TRIGGER abort_ddl ENABLE ALWAYS;
+
+ALTER EVENT TRIGGER abort_ddl OWNER TO admin;
+
+ALTER EVENT TRIGGER abort_ddl OWNER TO CURRENT_ROLE;
+
+ALTER EVENT TRIGGER abort_ddl RENAME TO block_ddl;
+
+DROP EVENT TRIGGER abort_ddl;
+
+DROP EVENT TRIGGER IF EXISTS abort_ddl CASCADE;
