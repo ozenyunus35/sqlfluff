@@ -595,6 +595,31 @@ postgres_dialect.add(
             ),
         ),
     ),
+    # https://www.postgresql.org/docs/current/sql-set-transaction.html
+    TransactionModeGrammar=OneOf(
+        Sequence(
+            "ISOLATION",
+            "LEVEL",
+            OneOf(
+                "SERIALIZABLE",
+                Sequence("REPEATABLE", "READ"),
+                Sequence("READ", "COMMITTED"),
+                Sequence("READ", "UNCOMMITTED"),
+            ),
+        ),
+        Sequence("READ", OneOf("WRITE", "ONLY")),
+        Sequence(Ref.keyword("NOT", optional=True), "DEFERRABLE"),
+    ),
+    # The modes may be separated by commas or just by whitespace.
+    TransactionModeListGrammar=Sequence(
+        Ref("TransactionModeGrammar"),
+        AnyNumberOf(
+            Sequence(
+                Ref("CommaSegment", optional=True),
+                Ref("TransactionModeGrammar"),
+            ),
+        ),
+    ),
 )
 
 postgres_dialect.replace(
@@ -5737,6 +5762,55 @@ class DropTypeStatementSegment(ansi.DropTypeStatementSegment):
     )
 
 
+class TransactionStatementSegment(ansi.TransactionStatementSegment):
+    """A transaction control statement.
+
+    https://www.postgresql.org/docs/current/sql-begin.html
+    https://www.postgresql.org/docs/current/sql-start-transaction.html
+    https://www.postgresql.org/docs/current/sql-commit.html
+    https://www.postgresql.org/docs/current/sql-rollback.html
+    https://www.postgresql.org/docs/current/sql-abort.html
+    https://www.postgresql.org/docs/current/sql-savepoint.html
+    https://www.postgresql.org/docs/current/sql-release-savepoint.html
+    https://www.postgresql.org/docs/current/sql-rollback-to.html
+    https://www.postgresql.org/docs/current/sql-prepare-transaction.html
+    https://www.postgresql.org/docs/current/sql-commit-prepared.html
+    https://www.postgresql.org/docs/current/sql-rollback-prepared.html
+    """
+
+    match_grammar: Matchable = OneOf(
+        Sequence(
+            OneOf("BEGIN", "START"),
+            OneOf("TRANSACTION", "WORK", optional=True),
+            Ref("TransactionModeListGrammar", optional=True),
+        ),
+        Sequence(
+            OneOf("COMMIT", "ROLLBACK"),
+            "PREPARED",
+            Ref("QuotedLiteralSegment"),
+        ),
+        Sequence(
+            "ROLLBACK",
+            OneOf("TRANSACTION", "WORK", optional=True),
+            "TO",
+            Ref.keyword("SAVEPOINT", optional=True),
+            Ref("ObjectReferenceSegment"),
+        ),
+        Sequence(
+            OneOf("COMMIT", "END", "ROLLBACK", "ABORT"),
+            OneOf("TRANSACTION", "WORK", optional=True),
+            Sequence("AND", Ref.keyword("NO", optional=True), "CHAIN", optional=True),
+        ),
+        Sequence("SAVEPOINT", Ref("ObjectReferenceSegment")),
+        Sequence(
+            "RELEASE",
+            Ref.keyword("SAVEPOINT", optional=True),
+            Ref("ObjectReferenceSegment"),
+        ),
+        Sequence("PREPARE", "TRANSACTION", Ref("QuotedLiteralSegment")),
+    )
+
+
 class SetStatementSegment(BaseSegment):
     """Set Statement.
 
@@ -5770,6 +5844,20 @@ class SetStatementSegment(BaseSegment):
             ),
             Sequence("SCHEMA", Ref("QuotedLiteralSegment")),
             Sequence("ROLE", OneOf("NONE", Ref("RoleReferenceSegment"))),
+            # https://www.postgresql.org/docs/current/sql-set-transaction.html
+            Sequence(
+                "TRANSACTION",
+                OneOf(
+                    Sequence("SNAPSHOT", Ref("QuotedLiteralSegment")),
+                    Ref("TransactionModeListGrammar"),
+                ),
+            ),
+            Sequence(
+                "CHARACTERISTICS",
+                "AS",
+                "TRANSACTION",
+                Ref("TransactionModeListGrammar"),
+            ),
         ),
     )
 

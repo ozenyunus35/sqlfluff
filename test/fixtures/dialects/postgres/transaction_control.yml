@@ -1,0 +1,167 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: f836276deec835e82bc2870bd91d96e6bf418d9c6ab084866324132985b8e6a3
+file:
+- statement:
+    transaction_statement:
+      keyword: BEGIN
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+    - keyword: BEGIN
+    - keyword: WORK
+    - keyword: ISOLATION
+    - keyword: LEVEL
+    - keyword: SERIALIZABLE
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+    - keyword: BEGIN
+    - keyword: TRANSACTION
+    - keyword: ISOLATION
+    - keyword: LEVEL
+    - keyword: READ
+    - keyword: COMMITTED
+    - comma: ','
+    - keyword: READ
+    - keyword: ONLY
+    - comma: ','
+    - keyword: DEFERRABLE
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+    - keyword: START
+    - keyword: TRANSACTION
+    - keyword: ISOLATION
+    - keyword: LEVEL
+    - keyword: REPEATABLE
+    - keyword: READ
+    - keyword: READ
+    - keyword: WRITE
+    - keyword: NOT
+    - keyword: DEFERRABLE
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+    - keyword: START
+    - keyword: TRANSACTION
+    - keyword: READ
+    - keyword: ONLY
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+    - keyword: COMMIT
+    - keyword: AND
+    - keyword: CHAIN
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+    - keyword: END
+    - keyword: TRANSACTION
+    - keyword: AND
+    - keyword: 'NO'
+    - keyword: CHAIN
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+      keyword: ABORT
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+    - keyword: ABORT
+    - keyword: WORK
+    - keyword: AND
+    - keyword: CHAIN
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+      keyword: SAVEPOINT
+      object_reference:
+        naked_identifier: my_savepoint
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+    - keyword: RELEASE
+    - keyword: SAVEPOINT
+    - object_reference:
+        naked_identifier: my_savepoint
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+      keyword: RELEASE
+      object_reference:
+        naked_identifier: my_savepoint
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+    - keyword: ROLLBACK
+    - keyword: TO
+    - keyword: SAVEPOINT
+    - object_reference:
+        naked_identifier: my_savepoint
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+    - keyword: ROLLBACK
+    - keyword: WORK
+    - keyword: TO
+    - object_reference:
+        naked_identifier: my_savepoint
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+    - keyword: PREPARE
+    - keyword: TRANSACTION
+    - quoted_literal: "'foobar'"
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+    - keyword: COMMIT
+    - keyword: PREPARED
+    - quoted_literal: "'foobar'"
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+    - keyword: ROLLBACK
+    - keyword: PREPARED
+    - quoted_literal: "'foobar'"
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: TRANSACTION
+    - keyword: ISOLATION
+    - keyword: LEVEL
+    - keyword: SERIALIZABLE
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: TRANSACTION
+    - keyword: READ
+    - keyword: ONLY
+    - comma: ','
+    - keyword: DEFERRABLE
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: TRANSACTION
+    - keyword: SNAPSHOT
+    - quoted_literal: "'00000003-0000001B-1'"
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: SESSION
+    - keyword: CHARACTERISTICS
+    - keyword: AS
+    - keyword: TRANSACTION
+    - keyword: ISOLATION
+    - keyword: LEVEL
+    - keyword: READ
+    - keyword: UNCOMMITTED
+- statement_terminator: ;
