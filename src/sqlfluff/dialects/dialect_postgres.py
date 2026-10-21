@@ -3239,6 +3239,104 @@ class AlterExtensionStatementSegment(BaseSegment):
     )
 
 
+class AlterServerStatementSegment(BaseSegment):
+    """An `ALTER SERVER` statement.
+
+    https://www.postgresql.org/docs/current/sql-alterserver.html
+    """
+
+    type = "alter_server_statement"
+
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        "SERVER",
+        Ref("ServerReferenceSegment"),
+        OneOf(
+            Sequence(
+                Sequence("VERSION", Ref("VersionIdentifierSegment")),
+                Ref("OptionsGrammar", optional=True),
+            ),
+            Ref("OptionsGrammar"),
+            Sequence(
+                "OWNER",
+                "TO",
+                OneOf(
+                    "CURRENT_ROLE",
+                    "CURRENT_USER",
+                    "SESSION_USER",
+                    Ref("RoleReferenceSegment"),
+                ),
+            ),
+            Sequence("RENAME", "TO", Ref("ServerReferenceSegment")),
+        ),
+    )
+
+
+class DropServerStatementSegment(BaseSegment):
+    """A `DROP SERVER` statement.
+
+    https://www.postgresql.org/docs/current/sql-dropserver.html
+    """
+
+    type = "drop_server_statement"
+
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "SERVER",
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(Ref("ServerReferenceSegment")),
+        Ref("DropBehaviorGrammar", optional=True),
+    )
+
+
+class AlterUserMappingStatementSegment(BaseSegment):
+    """An `ALTER USER MAPPING` statement.
+
+    https://www.postgresql.org/docs/current/sql-alterusermapping.html
+    """
+
+    type = "alter_user_mapping_statement"
+
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        "USER",
+        "MAPPING",
+        "FOR",
+        OneOf(
+            "PUBLIC",
+            Ref("SingleIdentifierGrammar"),
+            Ref("SessionInformationUserFunctionsGrammar"),
+        ),
+        "SERVER",
+        Ref("ServerReferenceSegment"),
+        Ref("OptionsGrammar"),
+    )
+
+
+class DropUserMappingStatementSegment(BaseSegment):
+    """A `DROP USER MAPPING` statement.
+
+    https://www.postgresql.org/docs/current/sql-dropusermapping.html
+    """
+
+    type = "drop_user_mapping_statement"
+
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "USER",
+        "MAPPING",
+        Ref("IfExistsGrammar", optional=True),
+        "FOR",
+        OneOf(
+            "PUBLIC",
+            Ref("SingleIdentifierGrammar"),
+            Ref("SessionInformationUserFunctionsGrammar"),
+        ),
+        "SERVER",
+        Ref("ServerReferenceSegment"),
+    )
+
+
 class CreateForeignDataWrapperStatementSegment(BaseSegment):
     """A CREATE FOREIGN DATA WRAPPER Statement.
 
@@ -3258,6 +3356,64 @@ class CreateForeignDataWrapperStatementSegment(BaseSegment):
         "VALIDATOR",
         Ref("SingleIdentifierGrammar"),
         Dedent,
+    )
+
+
+class AlterForeignDataWrapperStatementSegment(BaseSegment):
+    """An `ALTER FOREIGN DATA WRAPPER` statement.
+
+    https://www.postgresql.org/docs/current/sql-alterforeigndatawrapper.html
+    """
+
+    type = "alter_foreign_data_wrapper_statement"
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        Ref("ForeignDataWrapperGrammar"),
+        Ref("SingleIdentifierGrammar"),
+        OneOf(
+            Sequence(
+                AnySetOf(
+                    OneOf(
+                        Sequence("HANDLER", Ref("FunctionNameSegment")),
+                        Sequence("NO", "HANDLER"),
+                    ),
+                    OneOf(
+                        Sequence("VALIDATOR", Ref("FunctionNameSegment")),
+                        Sequence("NO", "VALIDATOR"),
+                    ),
+                    min_times=1,
+                ),
+                Ref("OptionsGrammar", optional=True),
+            ),
+            Ref("OptionsGrammar"),
+            Sequence(
+                "OWNER",
+                "TO",
+                OneOf(
+                    "CURRENT_ROLE",
+                    "CURRENT_USER",
+                    "SESSION_USER",
+                    Ref("RoleReferenceSegment"),
+                ),
+            ),
+            Sequence("RENAME", "TO", Ref("SingleIdentifierGrammar")),
+        ),
+    )
+
+
+class DropForeignDataWrapperStatementSegment(BaseSegment):
+    """A `DROP FOREIGN DATA WRAPPER` statement.
+
+    https://www.postgresql.org/docs/current/sql-dropforeigndatawrapper.html
+    """
+
+    type = "drop_foreign_data_wrapper_statement"
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        Ref("ForeignDataWrapperGrammar"),
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(Ref("SingleIdentifierGrammar")),
+        Ref("DropBehaviorGrammar", optional=True),
     )
 
 
@@ -5368,6 +5524,12 @@ class StatementSegment(ansi.StatementSegment):
             Ref("ShowStatementSegment"),
             Ref("SetConstraintsStatementSegment"),
             Ref("CreateForeignDataWrapperStatementSegment"),
+            Ref("AlterForeignDataWrapperStatementSegment"),
+            Ref("DropForeignDataWrapperStatementSegment"),
+            Ref("AlterServerStatementSegment"),
+            Ref("DropServerStatementSegment"),
+            Ref("AlterUserMappingStatementSegment"),
+            Ref("DropUserMappingStatementSegment"),
             Ref("MetaCommandQueryBufferStatement"),
             Ref("DropForeignTableStatement"),
             Ref("CreateOperatorStatementSegment"),
